@@ -5,6 +5,7 @@ from pygsp import graphs, filters
 from skimage import data, color, util
 from skimage.util import view_as_windows
 from skimage.io import imread
+from skimage.metrics import peak_signal_noise_ratio as psnr, structural_similarity as ssim  # Import PSNR and SSIM
 from typing import Tuple, Optional
 import logging
 import multiprocessing as mp
@@ -123,7 +124,7 @@ def main():
     overlap = st.sidebar.slider("Overlap", 8, patch_size-1, 16, 8)
     noise_variance = st.sidebar.slider("Noise Variance", 0.01, 0.5, 0.1, 0.01)
     heat_tau = st.sidebar.slider("Heat Tau", 1, 50, 10, 1)
-    num_processes = st.sidebar.slider("Number of Processes", 1, mp.cpu_count(), max(1, (mp.cpu_count()-1)//2))
+    num_processes = st.sidebar.slider("Number of Processes", 1, mp.cpu_count(), max(1, mp.cpu_count()-1))
     uploaded_file = st.file_uploader("Choose an image file", type=['png', 'jpg', 'jpeg'])
 
     if uploaded_file is not None or st.button("Run with sample image"):
@@ -150,6 +151,11 @@ def main():
             noisy_image, denoised_image = denoiser.denoise(image, progress_bar)
             processing_time = time.time() - start_time
             status_text.text(f"Processing completed in {processing_time:.2f} seconds!")
+
+            # Calculate PSNR and SSIM
+            psnr_value = psnr(image, denoised_image)
+            ssim_value = ssim(image, denoised_image, data_range=denoised_image.max() - denoised_image.min())
+
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.subheader("Original")
@@ -160,6 +166,10 @@ def main():
             with col3:
                 st.subheader("Denoised")
                 st.image(denoised_image, use_column_width=True)
+
+            # Display PSNR and SSIM scores
+            st.write(f"**PSNR:** {psnr_value:.2f} dB")
+            st.write(f"**SSIM:** {ssim_value:.4f}")
 
         except Exception as e:
             st.error(f"Error during processing: {str(e)}")
