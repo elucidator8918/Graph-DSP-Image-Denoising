@@ -1,2 +1,3 @@
 pygsp
+matplotlib
 scikit-image
