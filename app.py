@@ -123,7 +123,7 @@ def main():
     overlap = st.sidebar.slider("Overlap", 8, patch_size-1, 16, 8)
     noise_variance = st.sidebar.slider("Noise Variance", 0.01, 0.5, 0.1, 0.01)
     heat_tau = st.sidebar.slider("Heat Tau", 1, 50, 10, 1)
-    num_processes = st.sidebar.slider("Number of Processes", 1, mp.cpu_count()//2, max(1, mp.cpu_count()-1))
+    num_processes = st.sidebar.slider("Number of Processes", 1, mp.cpu_count(), max(1, (mp.cpu_count()-1)//2))
     uploaded_file = st.file_uploader("Choose an image file", type=['png', 'jpg', 'jpeg'])
 
     if uploaded_file is not None or st.button("Run with sample image"):
